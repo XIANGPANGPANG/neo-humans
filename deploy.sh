@@ -1,15 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -lt 1 ]]; then
-  echo "用法: ./deploy.sh root@你的Vultr服务器IP [远程目录]"
-  exit 1
-fi
+SERVER="${SERVER:-root@45.76.148.137}"
+SSH_PORT="${SSH_PORT:-2222}"
+REMOTE_DIR="${REMOTE_DIR:-/var/www/neo-humans}"
 
-SERVER="$1"
-REMOTE_DIR="${2:-/var/www/neo-humans}"
-LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
-
-echo "正在上传到 ${SERVER}:${REMOTE_DIR}/"
-rsync -az --exclude '.DS_Store' --exclude 'deploy.sh' "${LOCAL_DIR}/" "${SERVER}:${REMOTE_DIR}/"
-echo "上传完成：https://neo-humans.com"
+echo "正在让 ${SERVER} 从 GitHub 拉取最新版本..."
+ssh -p "${SSH_PORT}" "${SERVER}" "git -C '${REMOTE_DIR}' pull --ff-only"
+echo "更新完成：https://neo-humans.com"
